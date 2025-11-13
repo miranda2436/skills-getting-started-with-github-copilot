@@ -13,6 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // Clear loading message
       activitiesList.innerHTML = "";
 
+      // Remove any previously added options (keep placeholder)
+      activitySelect.querySelectorAll("option:not([value=''])").forEach((o) => o.remove());
+
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
         const activityCard = document.createElement("div");
@@ -25,7 +28,32 @@ document.addEventListener("DOMContentLoaded", () => {
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+
+          <div class="participants-section">
+            <h5>Participants</h5>
+            <ul class="participants-list"></ul>
+          </div>
         `;
+
+        // Populate participants list safely (avoid innerHTML for user data)
+        const participantsListEl = activityCard.querySelector(".participants-list");
+        if (!participantsListEl) {
+          // Fallback: if DOM structure changes, append a simple text node
+          const fallback = document.createElement("p");
+          fallback.textContent = "Participants unavailable";
+          activityCard.appendChild(fallback);
+        } else if (!details.participants || details.participants.length === 0) {
+          const li = document.createElement("li");
+          li.textContent = "No participants yet";
+          li.className = "no-participants";
+          participantsListEl.appendChild(li);
+        } else {
+          details.participants.forEach((p) => {
+            const li = document.createElement("li");
+            li.textContent = p;
+            participantsListEl.appendChild(li);
+          });
+        }
 
         activitiesList.appendChild(activityCard);
 
